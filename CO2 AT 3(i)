@@ -1,0 +1,108 @@
+#include <reg51.h>
+   ACTUATOR PIN DEFINITIONS
+sbit HEATER = P1^0;
+sbit COOLER = P1^1;
+sbit FAN    = P1^2;
+sbit ALARM  = P1^3;
+   DELAY FUNCTION
+void Delay(void)
+{
+    unsigned int i, j;
+
+    for(i = 0; i < 200; i++)
+    {
+        for(j = 0; j < 1275; j++);
+    }
+}
+   SENSOR MODULE
+   P2 is used as simulated temperature input.
+unsigned char Read_Temperature(void)
+{
+    unsigned char temperature;
+
+    temperature = P2;
+
+    return temperature;
+}
+   ACTUATOR MODULE
+void Heater_ON(void)
+{
+    HEATER = 1;
+}
+
+void Cooler_ON(void)
+{
+    COOLER = 1;
+}
+
+void Fan_ON(void)
+{
+    FAN = 1;
+}
+
+void Alarm_ON(void)
+{
+    ALARM = 1;
+}
+   TURN OFF ALL ACTUATORS
+void All_OFF(void)
+{
+    HEATER = 0;
+    COOLER = 0;
+    FAN = 0;
+    ALARM = 0;
+}
+   HVAC CONTROL MODULE
+void HVAC_Control(unsigned char temperature)
+{
+    /* First switch OFF everything */
+    All_OFF();
+
+    /* Low temperature */
+    if(temperature < 20)
+    {
+        Heater_ON();
+    }
+    /* Normal temperature */
+    else if(temperature >= 20 && temperature <= 30)
+    {
+        Fan_ON();
+    }
+
+    /* High temperature */
+    else if(temperature > 30 && temperature <= 40)
+    {
+        Cooler_ON();
+        Fan_ON();
+    }
+
+    /* Very high temperature */
+    else if(temperature > 40)
+    {
+        Cooler_ON();
+        Fan_ON();
+        Alarm_ON();
+    }
+}
+
+   MAIN PROGRAM
+void main(void)
+{
+    unsigned char temperature;
+
+    /* Initial states */
+    P1 = 0x00;
+    P2 = 25;
+
+    while(1)
+    {
+        /* Read temperature sensor */
+        temperature = Read_Temperature();
+
+        /* Control HVAC */
+        HVAC_Control(temperature);
+
+        /* Small delay */
+        Delay();
+    }
+}
