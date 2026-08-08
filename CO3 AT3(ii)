@@ -1,0 +1,61 @@
+#include <reg51.h>
+/* LED Connections */
+sbit LED1 = P2^0;     // Timer delay LED
+sbit LED2 = P2^1;     // Software delay LED
+  Timer 0 Delay - 1 ms
+  Crystal = 11.0592 MHz
+void Timer_Delay_1ms(void)
+{
+    TMOD &= 0xF0;      // Clear Timer 0 bits
+    TMOD |= 0x01;      // Timer 0, Mode 1 (16-bit)
+
+    TH0 = 0xFC;        // Load value for 1 ms
+    TL0 = 0x66;
+
+    TR0 = 1;           // Start Timer 0
+
+    while(TF0 == 0);   // Wait for overflow
+
+    TR0 = 0;           // Stop Timer 0
+    TF0 = 0;           // Clear overflow flag
+}
+  Generate Timer Delay in ms
+void Timer_Delay(unsigned int ms)
+{
+    unsigned int i;
+
+    for(i = 0; i < ms; i++)
+    {
+        Timer_Delay_1ms();
+    }
+}
+  Software Delay
+void Software_Delay(void)
+{
+    unsigned int i, j;
+
+    for(i = 0; i < 200; i++)
+    {
+        for(j = 0; j < 1275; j++)
+        {
+            ;
+        }
+    }
+}
+  Main Program
+void main(void)
+{
+    LED1 = 0;
+    LED2 = 0;
+
+    while(1)
+    {
+        /* LED1 - Precise Timer Delay */
+        LED1 = ~LED1;
+        Timer_Delay(500);
+
+        /* LED2 - Software Delay */
+        LED2 = ~LED2;
+        Software_Delay();
+    }
+}
