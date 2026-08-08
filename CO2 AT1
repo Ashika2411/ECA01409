@@ -1,0 +1,25 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+int main()
+{
+    srand(time(NULL));   // Seed random generator
+    printf("Automotive Engine Monitoring Simulation Started...\n\n");
+    // Simulate 10 samples, every 10 ms
+    for (int t = 0; t <= 100; t += 10)
+    {
+        int adc_value = rand() % 1024;   // Simulated 10-bit ADC
+
+        if (adc_value > 700)
+        {
+            printf("%d ms : WARNING! ADC=%d (Engine Overload)\n",
+                   t, adc_value);
+        }
+        else
+        {
+            printf("%d ms : Normal ADC=%d\n", t, adc_value);
+        }
+    }
+    printf("Simulation Ended.\n");
+    return 0;
+}
